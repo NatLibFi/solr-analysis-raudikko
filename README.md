@@ -1,6 +1,6 @@
 # Raudikko Analysis for Solr
 
-The Raudikko Analysis plugin provides Finnish language analysis for Solr using [Raudikko](https://github.com/EvidentSolutions/raudikko).
+The Raudikko Analysis plugin provides Finnish language analysis for Solr using [Raudikko](https://github.com/EvidentSolutions/raudikko), a pure Java implementation of [Voikko](https://voikko.puimula.org/).
 
 Based on the [Raudikko Analysis for Elasticsearch](https://github.com/EvidentSolutions/elasticsearch-analysis-raudikko) plugin.
 
@@ -66,6 +66,7 @@ It should be possible to upgrade with minimal changes, and in most cases the ana
 ## License and copyright
 
 Copyright (C) 2021-2022  Evident Solutions Oy
+
 Copyright (C) 2022  University of Helsinki (The National Library of Finland)
 
 This program is free software: you can redistribute it and/or modify
