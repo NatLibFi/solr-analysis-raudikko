@@ -21,6 +21,8 @@ package fi.nationallibrary.solr.raudikko.analysis;
 
 import fi.evident.raudikko.Analyzer;
 import fi.evident.raudikko.Analysis;
+
+import org.apache.commons.lang.LocaleUtils;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -33,6 +35,7 @@ import java.util.regex.Pattern;
 final class RaudikkoTokenFilter extends TokenFilter {
 
     private State current;
+    private int currentPosition = 1;
     private final Analyzer raudikkoAnalyzer;
     private final RaudikkoTokenFilterConfiguration cfg;
 
@@ -57,7 +60,7 @@ final class RaudikkoTokenFilter extends TokenFilter {
     @Override
     public boolean incrementToken() throws IOException {
         if (!alternatives.isEmpty()) {
-            outputAlternative(alternatives.removeFirst());
+            outputAlternative();
             return true;
         }
 
@@ -86,9 +89,9 @@ final class RaudikkoTokenFilter extends TokenFilter {
 
         if (result.size() > 1) {
             current = captureState();
-
             alternatives.addAll(result.subList(1, result.size()));
         }
+        currentPosition = 1;
     }
 
     private List<CompoundToken> analyzeUncached(String word) {
@@ -97,6 +100,7 @@ final class RaudikkoTokenFilter extends TokenFilter {
             return Collections.emptyList();
         }
         LinkedList<CompoundToken> words = new LinkedList<CompoundToken>();
+        final Locale locale = new Locale("fi", "FI");
 
         for (Integer i = 0; i < analysis.size(); i++) {
             if (!cfg.analyzeAll && i > 0) {
@@ -104,16 +108,18 @@ final class RaudikkoTokenFilter extends TokenFilter {
             }
             final Analysis a = analysis.get(i);
             String baseForm = a.getBaseForm();
+            if (cfg.lowercase) {
+                baseForm = baseForm.toLowerCase(locale);
+            }
             if (!baseForm.isEmpty()) {
-                final CompoundToken token = new CompoundToken(baseForm, 0);
+                final CompoundToken token = new CompoundToken(baseForm, 1);
                 if (!words.contains(token)) {
                     words.add(token);
                 }
             }
 
             if (cfg.expandCompounds) {
-                final String fstOutput = a.getFstOutput();
-                final String parts[] = fstOutput.split("\\[Xp\\]");
+                final String parts[] = a.getFstOutput().split("\\[Xp\\]");
                 if (parts.length <= 2) {
                     continue;
                 }
@@ -123,22 +129,47 @@ final class RaudikkoTokenFilter extends TokenFilter {
                         continue;
                     }
                     // Replace equals sign e.g. with "hyvin=vointi"
-                    words.add(
-                        new CompoundToken(
-                            parts[p].substring(0, endOffset).replaceAll("=", ""),
-                            p - 1
-                        )
-                    );
+                    String part = parts[p].substring(0, endOffset).replaceAll("=", "");
+                    if (cfg.lowercase) {
+                        part = part.toLowerCase(locale);
+                    }
+                    final CompoundToken token = new CompoundToken(part, p);
+                    if (!words.contains(token)) {
+                        words.add(token);
+                    }
+
                 }
             }
         }
         return words;
     }
 
-    private void outputAlternative(CompoundToken token) {
+    private void outputAlternative() {
         restoreState(current);
 
-        positionIncrementAttribute.setPositionIncrement(token.position);
+        CompoundToken token = null;
+        int prevPosition = currentPosition;
+        // Find next token for this or next position
+        for (; currentPosition <= prevPosition + 1; currentPosition++) {
+            Iterator<CompoundToken> it = alternatives.iterator();
+            while (it.hasNext()) {
+                CompoundToken t = it.next();
+                if (t.position == currentPosition) {
+                    token = t;
+                    it.remove();
+                    break;
+                }
+            }
+            if (token != null) {
+                break;
+            }
+        }
+        if (token == null) {
+            alternatives.clear();
+            return;
+        }
+
+        positionIncrementAttribute.setPositionIncrement(currentPosition > prevPosition ? 1 : 0);
         charTermAttribute.setEmpty().append(token.txt);
     }
 

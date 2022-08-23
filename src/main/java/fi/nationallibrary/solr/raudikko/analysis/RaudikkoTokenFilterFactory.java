@@ -42,6 +42,7 @@ public class RaudikkoTokenFilterFactory extends TokenFilterFactory {
 
         cfg.analyzeAll = getBoolean(args, "analyzeAll", cfg.analyzeAll);
         cfg.expandCompounds = getBoolean(args, "expandCompounds", cfg.expandCompounds);
+        cfg.lowercase = getBoolean(args, "lowercase", cfg.lowercase);
         cfg.minimumWordSize = getInt(args, "minimumWordSize", cfg.minimumWordSize);
         cfg.maximumWordSize = getInt(args, "maximumWordSize", cfg.maximumWordSize);
         cfg.cacheSize = getInt(args, "analysisCacheSize", cfg.cacheSize);

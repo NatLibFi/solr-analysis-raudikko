@@ -26,6 +26,9 @@ public class RaudikkoTokenFilterConfiguration {
     /** If true, all parts of a compound word are returned */
     boolean expandCompounds = false;
 
+    /** If true, all terms are lowercased */
+    boolean lowercase = true;
+
     /** Words shorter than this threshold are ignored */
     int minimumWordSize = 3;
 

@@ -3,7 +3,7 @@ plugins {
     `java-library-distribution`
 }
 
-val baseVersion = System.getProperty("baseVersion") ?: "0.1.0"
+val baseVersion = System.getProperty("baseVersion") ?: "0.2.0"
 val solrVersion = System.getProperty("solrVersion") ?: "8.11.0"
 val raudikkoVersion = System.getProperty("raudikkoVersion") ?: "0.1.1"
 

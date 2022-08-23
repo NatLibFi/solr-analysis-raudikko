@@ -41,8 +41,7 @@ public class RaudikkoTokenFilterTests  {
     public void testDefaultSettings() {
         assertTokens("Testaan voikon analyysiä tällä tavalla yksinkertaisesti.",
                 token("Testaan", "testata", 1),
-                token("voikon", "Voikko", 1),
-                token("voikon", "voikko", 0),
+                token("voikon", "voikko", 1),
                 token("analyysiä", "analyysi", 1),
                 token("tällä", "tämä", 1),
                 token("tavalla", "tapa", 1),
@@ -50,11 +49,25 @@ public class RaudikkoTokenFilterTests  {
     }
 
     @Test
+    public void testDisableLowercasing() {
+        configuration.lowercase = false;
+        assertTokens("Testaan voikon analyysiä tällä tavalla yksinkertaisesti.",
+                token("Testaan", "testata", 1),
+                token("voikon", "Voikko", 1),
+                token("voikon", "voikko", 0),
+                token("analyysiä", "analyysi", 1),
+                token("tällä", "tämä", 1),
+                token("tavalla", "tapa", 1),
+                token("yksinkertaisesti", "yksinkertainen", 1));
+        configuration.lowercase = true;
+    }
+
+    @Test
     public void testDisableVariations() {
         configuration.analyzeAll = false;
         assertTokens("Testaan voikon analyysiä tällä tavalla yksinkertaisesti.",
                 token("Testaan", "testata", 1),
-                token("voikon", "Voikko", 1),
+                token("voikon", "voikko", 1),
                 token("analyysiä", "analyysi", 1),
                 token("tällä", "tämä", 1),
                 token("tavalla", "tapa", 1),
@@ -65,8 +78,7 @@ public class RaudikkoTokenFilterTests  {
     public void testNonSeparatedTokens() {
         assertTokens("Testaan voikon analyysiä tällä tavalla yksinkertaisesti.",
                 token("Testaan", "testata", 1),
-                token("voikon", "Voikko", 1),
-                token("voikon", "voikko", 0),
+                token("voikon", "voikko", 1),
                 token("analyysiä", "analyysi", 1),
                 token("tällä", "tämä", 1),
                 token("tavalla", "tapa", 1),
@@ -115,6 +127,19 @@ public class RaudikkoTokenFilterTests  {
             token("keinokuuhun", "keinokuu", 1),
             token("keinokuuhun", "keino", 0),
             token("keinokuuhun", "kuu", 1)
+        );
+        assertTokens(
+            "vuoksenranta",
+            token("vuoksenranta", "vuoksenranta", 1),
+            token("vuoksenranta", "vuoksi", 0),
+            token("vuoksenranta", "ranta", 1)
+        );
+        assertTokens(
+            "autonkuljetusauto",
+            token("autonkuljetusauto", "autonkuljetusauto", 1),
+            token("autonkuljetusauto", "auto", 0),
+            token("autonkuljetusauto", "kuljettaa", 1),
+            token("autonkuljetusauto", "auto", 1)
         );
     }
 

@@ -53,6 +53,7 @@ You can use the following filter options to customize the behaviour of the filte
 |-------------------|------------------|-------------------------------------------------------------|
 | analyzeAll        | true             | whether to use all analysis possibilities or just the first |
 | expandCompounds   | false            | whether to expand compound words                            |
+| lowercase         | true             | whether to lowercase all results                            |
 | minimumWordSize   | 3                | minimum length of words to analyze                          |
 | maximumWordSize   | 100              | maximum length of words to analyze                          |
 | analysisCacheSize | 1024             | number of analysis results to cache                         |
