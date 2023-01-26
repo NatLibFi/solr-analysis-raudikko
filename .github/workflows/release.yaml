@@ -10,7 +10,7 @@ jobs:
       # Assume that input tag is formatted like 'v1.2.3' and transforms that to '1.2.3'
       - name: Normalize version
         id: normalize-version
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
         with:
           result-encoding: string
           script: |
@@ -31,13 +31,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        solrVersion: ['8.11.2']
+        solrVersion: ['9.1.1']
       fail-fast: false
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/setup-java@v1
         with:
-          java-version: 8
+          java-version: 11
       - uses: gradle/wrapper-validation-action@v1
       - uses: gradle/gradle-build-action@v2
         with:

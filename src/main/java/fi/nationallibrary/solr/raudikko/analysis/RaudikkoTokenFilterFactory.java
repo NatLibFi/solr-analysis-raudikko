@@ -23,7 +23,7 @@ import java.util.Map;
 
 import fi.evident.raudikko.Morphology;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.util.TokenFilterFactory;
+import org.apache.lucene.analysis.TokenFilterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
