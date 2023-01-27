@@ -9,11 +9,19 @@ jobs:
         solrVersion: ['9.1.1']
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v1
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
         with:
-          java-version: 11
-      - uses: gradle/wrapper-validation-action@v1
-      - uses: gradle/gradle-build-action@v2
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Build
+        uses: gradle/gradle-build-action@v2
         with:
           arguments: build -DsolrVersion=${{ matrix.solrVersion }}

@@ -1,50 +1,46 @@
 name: Release
 on:
-  release:
-    types: [ published ]
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
 
 jobs:
-  prepare:
-    runs-on: ubuntu-latest
-    steps:
-      # Assume that input tag is formatted like 'v1.2.3' and transforms that to '1.2.3'
-      - name: Normalize version
-        id: normalize-version
-        uses: actions/github-script@v6
-        with:
-          result-encoding: string
-          script: |
-            const tagName = context.payload.release.tag_name;
-            if (tagName.startsWith("v")) {
-                const version = tagName.substring(1);
-                console.log(`Setting version to ${version}`);
-                core.setOutput('version', version);
-            } else {
-                core.setFailed(`Release tag ${tagName} does not have a prefix 'v'`);
-            }
-    outputs:
-      version: ${{ steps.normalize-version.outputs.version }}
-
-  # TODO: duplication from build.yaml
-  build:
-    needs: [ prepare ]
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     strategy:
       matrix:
         solrVersion: ['9.1.1']
-      fail-fast: false
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v1
+      - name: Get version number
+        id: myvars
+        run: |
+          TAG_VERSION="$(echo ${GITHUB_REF##*v} | cut -d'-' -f1)"
+          echo "version=$TAG_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
         with:
-          java-version: 11
-      - uses: gradle/wrapper-validation-action@v1
-      - uses: gradle/gradle-build-action@v2
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Build
+        uses: gradle/gradle-build-action@v2
         with:
-          arguments: build -DbaseVersion=${{ needs.prepare.outputs.version }} -DsolrVersion=${{ matrix.solrVersion }}
-      - name: Upload the artifacts
-        uses: skx/github-action-publish-binaries@release-2.0
+          arguments: build -DbaseVersion=${{ steps.myvars.outputs.version }} -DsolrVersion=${{ matrix.solrVersion }}
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: 'build/distributions/*.zip'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          args: 'build/distributions/*.zip'
