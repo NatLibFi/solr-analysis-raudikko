@@ -22,7 +22,6 @@ package fi.nationallibrary.solr.raudikko.analysis;
 import fi.evident.raudikko.Analyzer;
 import fi.evident.raudikko.Analysis;
 
-import org.apache.commons.lang.LocaleUtils;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;

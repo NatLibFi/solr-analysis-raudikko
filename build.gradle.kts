@@ -3,8 +3,14 @@ plugins {
     `java-library-distribution`
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
+}
+
 val baseVersion = System.getProperty("baseVersion") ?: "0.2.0"
-val solrVersion = System.getProperty("solrVersion") ?: "8.11.0"
+val solrVersion = System.getProperty("solrVersion") ?: "9.1.1"
 val raudikkoVersion = System.getProperty("raudikkoVersion") ?: "0.1.1"
 
 group = "fi.nationallibrary.solr"
@@ -16,6 +22,8 @@ repositories {
 
 dependencies {
     compileOnly("org.apache.solr:solr-core:$solrVersion")
+    compileOnly("org.apache.lucene:lucene-core")
+    //compileOnly("org.apache.commons:commons-lang3")
     implementation("fi.evident.raudikko:raudikko:$raudikkoVersion")
 
     testImplementation("org.apache.solr:solr-core:$solrVersion")
@@ -34,11 +42,5 @@ tasks.test {
 distributions {
     main {
         distributionBaseName.set("solr-raudikko")
-    }
-}
-
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
     }
 }
